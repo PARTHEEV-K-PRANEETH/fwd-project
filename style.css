@@ -1,3 +1,4 @@
+/* Course Outcome 1: Introductory CSS Styling (CSS syntax, Typography essentials, Color representations) */
 body{
 font-family:Arial;
 background:#0f0f0f;
@@ -6,6 +7,7 @@ text-align:center;
 }
 
 input{
+/* Course Outcome 1: Introductory CSS Styling (Foundational spacing: padding, margin) */
 padding:10px;
 margin:10px;
 width:300px;
@@ -20,6 +22,7 @@ cursor:pointer;
 }
 
 .logout{
+/* Course Outcome 2: Comprehensive CSS Layouts (Block layout/Absolute positioning) */
 position:absolute;
 right:20px;
 top:20px;
@@ -34,6 +37,7 @@ position:relative;
 }
 
 .days{
+/* Course Outcome 2: Comprehensive CSS Layouts & Styling (Flexbox) */
 display:flex;
 flex-wrap:wrap;
 justify-content:center;
@@ -45,6 +49,7 @@ margin:3px;
 }
 
 .delete{
+/* Course Outcome 2: Comprehensive CSS Layouts (Block layout/Absolute positioning) */
 position:absolute;
 top:10px;
 right:10px;

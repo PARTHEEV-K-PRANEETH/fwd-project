@@ -6,7 +6,7 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <style>
-
+/* Course Outcome 1: Introductory CSS Styling (Color, Typography essentials) */
 body{
 font-family:Arial;
 background:#0f0f0f;
@@ -16,10 +16,12 @@ text-align:center;
 
 .page{
 display:none;
+/* Course Outcome 1: Foundational spacing (margin) */
 margin-top:120px;
 }
 
 input{
+/* Course Outcome 1: Foundational spacing (padding, margin) */
 padding:10px;
 margin:10px;
 width:250px;
@@ -41,6 +43,7 @@ border-radius:10px;
 position:relative;
 }
 
+/* Course Outcome 2: Comprehensive CSS Layouts (Flexbox) */
 .days{
 display:flex;
 flex-wrap:wrap;
@@ -52,6 +55,7 @@ margin:3px;
 }
 
 .delete{
+/* Course Outcome 2: Comprehensive CSS Layouts (Block/Absolute layout) */
 position:absolute;
 top:10px;
 right:10px;
@@ -70,151 +74,110 @@ right:20px;
 
 <body>
 
-<!-- LOGIN PAGE -->
-
 <div id="loginPage" class="page">
-
 <h2>Login</h2>
 
 <input id="loginUser" placeholder="Username">
 <br>
 <input id="loginPass" type="password" placeholder="Password">
-
 <br>
 
 <button onclick="login()">Login</button>
 
 <p>Don't have an account?</p>
-
 <button onclick="showSignup()">Go to Signup</button>
 
 </div>
 
-
-<!-- SIGNUP PAGE -->
-
 <div id="signupPage" class="page">
-
 <h2>Create Account</h2>
 
 <input id="signupUser" placeholder="Username">
 <br>
 <input id="signupPass" type="password" placeholder="Password">
-
 <br>
 
 <button onclick="signup()">Signup</button>
-
 <p>Already have an account?</p>
-
 <button onclick="showLogin()">Go to Login</button>
-
 </div>
-
-
-<!-- DASHBOARD PAGE -->
 
 <div id="dashboardPage" class="page">
 
 <button class="logout" onclick="logout()">Logout</button>
-
 <h2>Habit Tracker</h2>
-
 <input id="habitInput" placeholder="Enter habit name">
-
 <button onclick="addHabit()">Add Habit</button>
 
 <div id="habitList"></div>
 
 <h3>Progress Graph</h3>
-
 <canvas id="progressChart"></canvas>
 
 <h3>Individual Performance Intelligence</h3>
-
 <div id="analysis"></div>
 
 </div>
 
-
 <script>
-
+// Course Outcome 4: Storage & Async Programming (Browser storage via localStorage)
+// Course Outcome 3: Objects & Arrays (Array methods, Objects)
 let users = JSON.parse(localStorage.getItem("users")) || []
 let habits = JSON.parse(localStorage.getItem("habits")) || []
 
-
+// Course Outcome 3: JavaScript Fundamentals (Functions)
 function showLogin(){
-
+// Course Outcome 4: DOM & Events (DOM manipulation)
 document.getElementById("loginPage").style.display="block"
 document.getElementById("signupPage").style.display="none"
 document.getElementById("dashboardPage").style.display="none"
-
 }
 
 function showSignup(){
-
 document.getElementById("loginPage").style.display="none"
 document.getElementById("signupPage").style.display="block"
 document.getElementById("dashboardPage").style.display="none"
-
 }
 
 function showDashboard(){
-
 document.getElementById("loginPage").style.display="none"
 document.getElementById("signupPage").style.display="none"
 document.getElementById("dashboardPage").style.display="block"
-
 render()
-
 }
 
-
+// Course Outcome 5: Forms & API Integration (Handling user input dynamically)
 function signup(){
-
 let u=document.getElementById("signupUser").value
 let p=document.getElementById("signupPass").value
 
+// Course Outcome 3: Objects & Arrays (Array push)
 users.push({u,p})
-
 localStorage.setItem("users",JSON.stringify(users))
-
 alert("Signup Successful")
-
 showLogin()
-
 }
 
-
 function login(){
-
 let u=document.getElementById("loginUser").value
 let p=document.getElementById("loginPass").value
 
+// Course Outcome 3: JS Fundamentals (Arrow functions, Callback functions, Array methods)
 let found = users.find(x=>x.u==u && x.p==p)
 
+// Course Outcome 3: JS Fundamentals (Conditions)
 if(found){
-
 showDashboard()
-
 }else{
-
 alert("Invalid Login")
-
 }
-
 }
-
 
 function logout(){
-
 showLogin()
-
 }
 
-
 function addHabit(){
-
 let name=document.getElementById("habitInput").value
 
 if(name=="") return
@@ -225,108 +188,81 @@ data:new Array(30).fill(false)
 })
 
 localStorage.setItem("habits",JSON.stringify(habits))
-
 render()
-
 }
-
 
 function deleteHabit(i){
-
+// Course Outcome 3: Objects & Arrays (Array methods)
 habits.splice(i,1)
-
 localStorage.setItem("habits",JSON.stringify(habits))
-
 render()
-
 }
 
-
 function updateHabit(hIndex,dIndex,value){
-
 if(!habits[hIndex].data){
-
 habits[hIndex].data=new Array(30).fill(false)
-
 }
 
 habits[hIndex].data[dIndex]=value
-
 localStorage.setItem("habits",JSON.stringify(habits))
 
 renderGraph()
 analysis()
-
 }
 
-
 function render(){
-
 let list=document.getElementById("habitList")
-
 list.innerHTML=""
 
+// Course Outcome 3: Objects & Arrays (Array methods - forEach)
 habits.forEach((habit,hIndex)=>{
 
 if(!habit.data){
-
 habit.data=new Array(30).fill(false)
-
 }
 
 let daysHTML=""
 
+// Course Outcome 3: JS Fundamentals (Loops)
 for(let i=0;i<30;i++){
 
 let checked = habit.data[i] ? "checked" : ""
 
+// Course Outcome 4: DOM & Events (Event handling injected dynamically)
 daysHTML+=`
 <div class="day">
 <input type="checkbox" ${checked}
 onchange="updateHabit(${hIndex},${i},this.checked)">
 </div>
 `
-
 }
 
+// Course Outcome 4: DOM manipulation (innerHTML)
 list.innerHTML+=`
-
 <div class="habit">
-
 <button class="delete" onclick="deleteHabit(${hIndex})">Delete</button>
-
 <h3>${habit.name}</h3>
-
 <div class="days">
 ${daysHTML}
 </div>
-
 </div>
-
 `
-
 })
 
 renderGraph()
 analysis()
-
 }
 
-
 function renderGraph(){
-
 let ctx=document.getElementById("progressChart")
-
 let data=habits.map(h=>h.data.filter(x=>x).length)
-
 let labels=habits.map(h=>h.name)
 
 if(window.chart){
-
 window.chart.destroy()
-
 }
 
+// Course Outcome 5: Forms & API Integration (Third-party library rendering)
 window.chart=new Chart(ctx,{
 type:"bar",
 data:{
@@ -337,34 +273,24 @@ data:data
 }]
 }
 })
-
 }
 
-
 function analysis(){
-
 let box=document.getElementById("analysis")
-
 let text=""
 
 habits.forEach(h=>{
-
+// Course Outcome 3: JS Fundamentals (Basic expressions and operators)
 let done=h.data.filter(x=>x).length
-
 let percent=Math.round((done/30)*100)
-
 text+=`<p>${h.name} : ${percent}% consistency</p>`
-
 })
 
 box.innerHTML=text
-
 }
-
 
 showLogin()
 
 </script>
-
 </body>
 </html>
