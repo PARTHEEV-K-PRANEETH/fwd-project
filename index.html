@@ -1,13 +1,70 @@
 <!DOCTYPE html>
 <html>
-
 <head>
-
 <title>Habit Tracker</title>
 
-<link rel="stylesheet" href="style.css">
-
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<style>
+
+body{
+font-family:Arial;
+background:#0f0f0f;
+color:white;
+text-align:center;
+}
+
+.page{
+display:none;
+margin-top:120px;
+}
+
+input{
+padding:10px;
+margin:10px;
+width:250px;
+}
+
+button{
+padding:10px 20px;
+background:#e74c3c;
+border:none;
+color:white;
+cursor:pointer;
+}
+
+.habit{
+background:#1e1e1e;
+margin:20px;
+padding:20px;
+border-radius:10px;
+position:relative;
+}
+
+.days{
+display:flex;
+flex-wrap:wrap;
+justify-content:center;
+}
+
+.day{
+margin:3px;
+}
+
+.delete{
+position:absolute;
+top:10px;
+right:10px;
+background:#ff4444;
+}
+
+.logout{
+position:absolute;
+top:20px;
+right:20px;
+}
+
+</style>
 
 </head>
 
@@ -15,78 +72,299 @@
 
 <!-- LOGIN PAGE -->
 
-<div id="loginPage" class="auth-box">
+<div id="loginPage" class="page">
 
 <h2>Login</h2>
 
-<input type="text" id="loginUser" placeholder="Username">
+<input id="loginUser" placeholder="Username">
+<br>
+<input id="loginPass" type="password" placeholder="Password">
 
-<input type="password" id="loginPass" placeholder="Password">
+<br>
 
 <button onclick="login()">Login</button>
 
-<p>No account?</p>
+<p>Don't have an account?</p>
 
-<button onclick="showSignup()">Sign Up</button>
+<button onclick="showSignup()">Go to Signup</button>
 
 </div>
 
 
 <!-- SIGNUP PAGE -->
 
-<div id="signupPage" class="auth-box" style="display:none;">
+<div id="signupPage" class="page">
 
-<h2>Sign Up</h2>
+<h2>Create Account</h2>
 
-<input type="text" id="signupUser" placeholder="Username">
+<input id="signupUser" placeholder="Username">
+<br>
+<input id="signupPass" type="password" placeholder="Password">
 
-<input type="password" id="signupPass" placeholder="Password">
+<br>
 
-<button onclick="signup()">Create Account</button>
+<button onclick="signup()">Signup</button>
 
-<p>Already have account?</p>
+<p>Already have an account?</p>
 
-<button onclick="showLogin()">Login</button>
+<button onclick="showLogin()">Go to Login</button>
 
 </div>
 
 
-<!-- DASHBOARD -->
+<!-- DASHBOARD PAGE -->
 
-<div id="dashboard" style="display:none;">
+<div id="dashboardPage" class="page">
 
-<h1>Habit Tracker Dashboard</h1>
+<button class="logout" onclick="logout()">Logout</button>
 
-<button onclick="logout()">Logout</button>
+<h2>Habit Tracker</h2>
 
-<div class="add-habit">
-
-<input type="text" id="habitName" placeholder="Enter habit name">
+<input id="habitInput" placeholder="Enter habit name">
 
 <button onclick="addHabit()">Add Habit</button>
 
-</div>
-
 <div id="habitList"></div>
 
+<h3>Progress Graph</h3>
 
-<h2>Monthly Progress Graph</h2>
+<canvas id="progressChart"></canvas>
 
-<canvas id="chart" height="150"></canvas>
+<h3>Individual Performance Intelligence</h3>
 
-<button onclick="generateChart()">Show Graph</button>
-
-
-<h2>Individual Performance Intelligence</h2>
-
-<div id="performanceResult"></div>
-
-<button onclick="analyzePerformance()">Analyze Performance</button>
+<div id="analysis"></div>
 
 </div>
 
-<script src="script.js"></script>
+
+<script>
+
+let users = JSON.parse(localStorage.getItem("users")) || []
+let habits = JSON.parse(localStorage.getItem("habits")) || []
+
+
+function showLogin(){
+
+document.getElementById("loginPage").style.display="block"
+document.getElementById("signupPage").style.display="none"
+document.getElementById("dashboardPage").style.display="none"
+
+}
+
+function showSignup(){
+
+document.getElementById("loginPage").style.display="none"
+document.getElementById("signupPage").style.display="block"
+document.getElementById("dashboardPage").style.display="none"
+
+}
+
+function showDashboard(){
+
+document.getElementById("loginPage").style.display="none"
+document.getElementById("signupPage").style.display="none"
+document.getElementById("dashboardPage").style.display="block"
+
+render()
+
+}
+
+
+function signup(){
+
+let u=document.getElementById("signupUser").value
+let p=document.getElementById("signupPass").value
+
+users.push({u,p})
+
+localStorage.setItem("users",JSON.stringify(users))
+
+alert("Signup Successful")
+
+showLogin()
+
+}
+
+
+function login(){
+
+let u=document.getElementById("loginUser").value
+let p=document.getElementById("loginPass").value
+
+let found = users.find(x=>x.u==u && x.p==p)
+
+if(found){
+
+showDashboard()
+
+}else{
+
+alert("Invalid Login")
+
+}
+
+}
+
+
+function logout(){
+
+showLogin()
+
+}
+
+
+function addHabit(){
+
+let name=document.getElementById("habitInput").value
+
+if(name=="") return
+
+habits.push({
+name:name,
+data:new Array(30).fill(false)
+})
+
+localStorage.setItem("habits",JSON.stringify(habits))
+
+render()
+
+}
+
+
+function deleteHabit(i){
+
+habits.splice(i,1)
+
+localStorage.setItem("habits",JSON.stringify(habits))
+
+render()
+
+}
+
+
+function updateHabit(hIndex,dIndex,value){
+
+if(!habits[hIndex].data){
+
+habits[hIndex].data=new Array(30).fill(false)
+
+}
+
+habits[hIndex].data[dIndex]=value
+
+localStorage.setItem("habits",JSON.stringify(habits))
+
+renderGraph()
+analysis()
+
+}
+
+
+function render(){
+
+let list=document.getElementById("habitList")
+
+list.innerHTML=""
+
+habits.forEach((habit,hIndex)=>{
+
+if(!habit.data){
+
+habit.data=new Array(30).fill(false)
+
+}
+
+let daysHTML=""
+
+for(let i=0;i<30;i++){
+
+let checked = habit.data[i] ? "checked" : ""
+
+daysHTML+=`
+<div class="day">
+<input type="checkbox" ${checked}
+onchange="updateHabit(${hIndex},${i},this.checked)">
+</div>
+`
+
+}
+
+list.innerHTML+=`
+
+<div class="habit">
+
+<button class="delete" onclick="deleteHabit(${hIndex})">Delete</button>
+
+<h3>${habit.name}</h3>
+
+<div class="days">
+${daysHTML}
+</div>
+
+</div>
+
+`
+
+})
+
+renderGraph()
+analysis()
+
+}
+
+
+function renderGraph(){
+
+let ctx=document.getElementById("progressChart")
+
+let data=habits.map(h=>h.data.filter(x=>x).length)
+
+let labels=habits.map(h=>h.name)
+
+if(window.chart){
+
+window.chart.destroy()
+
+}
+
+window.chart=new Chart(ctx,{
+type:"bar",
+data:{
+labels:labels,
+datasets:[{
+label:"Completed Days",
+data:data
+}]
+}
+})
+
+}
+
+
+function analysis(){
+
+let box=document.getElementById("analysis")
+
+let text=""
+
+habits.forEach(h=>{
+
+let done=h.data.filter(x=>x).length
+
+let percent=Math.round((done/30)*100)
+
+text+=`<p>${h.name} : ${percent}% consistency</p>`
+
+})
+
+box.innerHTML=text
+
+}
+
+
+showLogin()
+
+</script>
 
 </body>
-
 </html>

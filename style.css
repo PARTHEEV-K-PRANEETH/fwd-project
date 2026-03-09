@@ -1,82 +1,54 @@
 body{
-
 font-family:Arial;
-background:#111;
+background:#0f0f0f;
 color:white;
 text-align:center;
-
-}
-
-.auth-box{
-
-width:300px;
-margin:auto;
-margin-top:120px;
-background:#1c1c1c;
-padding:25px;
-border-radius:10px;
-
 }
 
 input{
-
-width:90%;
 padding:10px;
-margin:8px;
-border:none;
-border-radius:5px;
-
+margin:10px;
+width:300px;
 }
 
 button{
-
 padding:10px 20px;
-background:#ff4d4d;
-color:white;
+background:#e74c3c;
 border:none;
+color:white;
 cursor:pointer;
-margin:8px;
-
 }
 
-#dashboard{
+.logout{
+position:absolute;
+right:20px;
+top:20px;
+}
 
-width:90%;
-margin:auto;
+.habit{
+background:#1e1e1e;
+margin:20px;
 padding:20px;
-
-}
-
-.habit-card{
-
-background:#1c1c1c;
-padding:15px;
-margin:15px 0;
-border-radius:8px;
-
+border-radius:10px;
+position:relative;
 }
 
 .days{
-
-display:grid;
-grid-template-columns:repeat(30,25px);
-gap:6px;
+display:flex;
+flex-wrap:wrap;
+justify-content:center;
 margin-top:10px;
-
 }
 
-.day input{
-
-width:20px;
-height:20px;
-
+.day{
+margin:3px;
 }
 
-#performanceResult{
-
-background:#1c1c1c;
-padding:20px;
-margin-top:20px;
-border-radius:8px;
-
+.delete{
+position:absolute;
+top:10px;
+right:10px;
+background:#ff4444;
+padding:5px 10px;
+border-radius:5px;
 }

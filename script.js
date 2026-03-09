@@ -1,236 +1,174 @@
-let habits = JSON.parse(localStorage.getItem("habits")) || [];
-let chart;
-
-
-/* PAGE SWITCHING */
-
-function showSignup(){
-
-document.getElementById("loginPage").style.display="none";
-document.getElementById("signupPage").style.display="block";
-
-}
-
-function showLogin(){
-
-document.getElementById("signupPage").style.display="none";
-document.getElementById("loginPage").style.display="block";
-
-}
-
-
-/* AUTH SYSTEM */
+let habits = JSON.parse(localStorage.getItem("habits")) || []
+let users = JSON.parse(localStorage.getItem("users")) || []
 
 function signup(){
 
-let user=document.getElementById("signupUser").value;
-let pass=document.getElementById("signupPass").value;
+let u=document.getElementById("signupUser").value
+let p=document.getElementById("signupPass").value
 
-localStorage.setItem("user",user);
-localStorage.setItem("pass",pass);
+users.push({u,p})
+localStorage.setItem("users",JSON.stringify(users))
 
-alert("Account created");
-
-showLogin();
+alert("Signup successful")
 
 }
 
 function login(){
 
-let user=document.getElementById("loginUser").value;
-let pass=document.getElementById("loginPass").value;
+let u=document.getElementById("loginUser").value
+let p=document.getElementById("loginPass").value
 
-let savedUser=localStorage.getItem("user");
-let savedPass=localStorage.getItem("pass");
+let found = users.find(x=>x.u==u && x.p==p)
 
-if(user===savedUser && pass===savedPass){
+if(found){
 
-document.getElementById("loginPage").style.display="none";
-document.getElementById("dashboard").style.display="block";
+document.getElementById("auth").style.display="none"
+document.getElementById("app").style.display="block"
 
-displayHabits();
+render()
 
-}
-else{
-
-alert("Invalid Login");
-
+}else{
+alert("Invalid login")
 }
 
 }
 
 function logout(){
-
-document.getElementById("dashboard").style.display="none";
-document.getElementById("loginPage").style.display="block";
-
+location.reload()
 }
-
-
-/* HABIT STORAGE */
-
-function saveHabits(){
-
-localStorage.setItem("habits",JSON.stringify(habits));
-
-}
-
-
-/* ADD HABIT */
 
 function addHabit(){
 
-let name=document.getElementById("habitName").value;
+let name=document.getElementById("habitInput").value
 
-if(name==="") return;
+if(name=="") return
 
-let habit={
-name:name,
-data:Array(30).fill(0)
-};
+let data = new Array(30).fill(false)
 
-habits.push(habit);
+habits.push({name,data})
 
-saveHabits();
+localStorage.setItem("habits",JSON.stringify(habits))
 
-displayHabits();
-
-document.getElementById("habitName").value="";
+render()
 
 }
 
+function deleteHabit(i){
 
-/* UPDATE HABIT */
+habits.splice(i,1)
 
-function updateHabit(habitIndex,dayIndex,checked){
+localStorage.setItem("habits",JSON.stringify(habits))
 
-habits[habitIndex].data[dayIndex]=checked?1:0;
-
-saveHabits();
+render()
 
 }
 
+function updateHabit(hIndex,dIndex,value){
 
-/* DISPLAY HABITS */
+if(!habits[hIndex].data){
+habits[hIndex].data = new Array(30).fill(false)
+}
 
-function displayHabits(){
+habits[hIndex].data[dIndex]=value
 
-let habitList=document.getElementById("habitList");
+localStorage.setItem("habits",JSON.stringify(habits))
 
-habitList.innerHTML="";
+renderGraph()
+analysis()
+
+}
+
+function render(){
+
+let list=document.getElementById("habitList")
+
+list.innerHTML=""
 
 habits.forEach((habit,hIndex)=>{
 
-let card=document.createElement("div");
+if(!habit.data){
+habit.data=new Array(30).fill(false)
+}
 
-card.className="habit-card";
-
-let daysHTML='<div class="days">';
+let daysHTML=""
 
 for(let i=0;i<30;i++){
 
+let checked = habit.data[i] ? "checked" : ""
+
 daysHTML+=`
 <div class="day">
-<input type="checkbox"
-${habit.data[i]?"checked":""}
+<input type="checkbox" ${checked}
 onchange="updateHabit(${hIndex},${i},this.checked)">
 </div>
-`;
+`
 
 }
 
-daysHTML+="</div>";
+list.innerHTML+=`
+<div class="habit">
 
-card.innerHTML=`<h3>${habit.name}</h3>`+daysHTML;
-
-habitList.appendChild(card);
-
-});
-
-}
-
-
-/* GRAPH */
-
-function generateChart(){
-
-let labels=[];
-let values=[];
-
-habits.forEach(habit=>{
-
-let total=habit.data.reduce((a,b)=>a+b,0);
-
-labels.push(habit.name);
-values.push(total);
-
-});
-
-let ctx=document.getElementById("chart");
-
-if(chart) chart.destroy();
-
-chart=new Chart(ctx,{
-
-type:"bar",
-
-data:{
-
-labels:labels,
-
-datasets:[{
-
-label:"Habit Completion",
-
-data:values,
-
-backgroundColor:"#ff4d4d"
-
-}]
-
-},
-
-options:{
-responsive:true,
-scales:{
-y:{
-beginAtZero:true,
-max:30
-}
-}
-}
-
-});
-
-}
-
-
-/* PERFORMANCE ANALYSIS */
-
-function analyzePerformance(){
-
-let html="";
-
-habits.forEach(habit=>{
-
-let completed=habit.data.reduce((a,b)=>a+b,0);
-
-let percent=((completed/30)*100).toFixed(1);
-
-html+=`
+<button class="delete" onclick="deleteHabit(${hIndex})">Delete</button>
 
 <h3>${habit.name}</h3>
 
-<p>Completed Days: ${completed}/30</p>
+<div class="days">
+${daysHTML}
+</div>
 
-<p>Success Rate: ${percent}%</p>
+</div>
+`
 
-<hr>
+})
 
-`;
-
-});
-
-document.getElementById("performanceResult").innerHTML=html;
+renderGraph()
+analysis()
 
 }
+
+function renderGraph(){
+
+let ctx=document.getElementById("progressChart")
+
+if(!ctx) return
+
+let data=habits.map(h=>h.data.filter(x=>x).length)
+
+let labels=habits.map(h=>h.name)
+
+if(window.chart){
+window.chart.destroy()
+}
+
+window.chart=new Chart(ctx,{
+type:"bar",
+data:{
+labels:labels,
+datasets:[{
+label:"Completed Days",
+data:data
+}]
+}
+})
+
+}
+
+function analysis(){
+
+let text=""
+
+habits.forEach(h=>{
+
+let done=h.data.filter(x=>x).length
+
+let percent=Math.round((done/30)*100)
+
+text+=`<p>${h.name} : ${percent}% consistency</p>`
+
+})
+
+document.getElementById("analysis").innerHTML=text
+
+}
+
+render()
